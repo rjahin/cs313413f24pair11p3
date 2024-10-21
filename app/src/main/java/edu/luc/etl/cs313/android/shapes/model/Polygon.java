@@ -4,22 +4,20 @@ import java.util.List;
 
 /**
  * A special case of a group consisting only of Points.
- *
  */
 public class Polygon extends Group {
 
     public Polygon(final Point... points) {
-        super(points);
+        super(points); // Use Group's constructor, but only accept Points
     }
 
     @SuppressWarnings("unchecked")
     public List<? extends Point> getPoints() {
-        return (List<? extends Point>) getShapes();
+        return (List<? extends Point>) getShapes(); // Cast the shapes to Points
     }
 
     @Override
     public <Result> Result accept(final Visitor<Result> v) {
-        // TODO your job
-        return null;
+        return v.onPolygon(this);  // Delegate to the visitor's onPolygon method
     }
 }

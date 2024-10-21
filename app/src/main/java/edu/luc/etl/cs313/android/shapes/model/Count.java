@@ -1,50 +1,49 @@
 package edu.luc.etl.cs313.android.shapes.model;
 
-/**
- * A visitor to compute the number of basic shapes in a (possibly complex)
- * shape.
- */
 public class Count implements Visitor<Integer> {
-
-    // TODO entirely your job
 
     @Override
     public Integer onPolygon(final Polygon p) {
-        return -1;
+        return 1; // A polygon is a basic shape
     }
 
     @Override
     public Integer onCircle(final Circle c) {
-        return -1;
+        return 1; // A circle is a basic shape
     }
 
     @Override
     public Integer onGroup(final Group g) {
-        return -1;
+        int count = 0;
+        for (Shape shape : g.getShapes()) {
+            count += shape.accept(this); // Recursively count the shapes
+        }
+        return count;
     }
 
+
     @Override
-    public Integer onRectangle(final Rectangle q) {
-        return -1;
+    public Integer onRectangle(final Rectangle r) {
+        return 1; // A rectangle is a basic shape
     }
 
     @Override
     public Integer onOutline(final Outline o) {
-        return -1;
+        return o.getShape().accept(this); // Count the shape inside the outline
     }
 
     @Override
-    public Integer onFill(final Fill c) {
-        return -1;
+    public Integer onFill(final Fill f) {
+        return f.getShape().accept(this); // Count the shape inside the fill
     }
 
     @Override
     public Integer onLocation(final Location l) {
-        return -1;
+        return l.getShape().accept(this); // Count the shape at this location
     }
 
     @Override
     public Integer onStrokeColor(final StrokeColor c) {
-        return -1;
+        return c.getShape().accept(this); // Count the shape inside the stroke color
     }
 }
