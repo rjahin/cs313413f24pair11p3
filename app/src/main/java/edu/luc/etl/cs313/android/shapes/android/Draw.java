@@ -62,9 +62,9 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onLocation(final Location l) {
-        canvas.save();  // Save the canvas state before translating
-        canvas.translate(l.getX(), l.getY());  // Translate to the location's coordinates
-        l.getShape().accept(this);  // Draw the shape at the translated position
+        canvas.save();
+        canvas.translate(l.getX(), l.getY());
+        l.getShape().accept(this);
         canvas.restore();  // Restore the canvas to its original state after drawing
         return null;
     }
