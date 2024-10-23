@@ -24,23 +24,12 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onStrokeColor(final StrokeColor sc) {
-        // Save the current color and style
-        int originalColor = paint.getColor();
-        Paint.Style originalStyle = paint.getStyle();
-
-        // Set the stroke color
         paint.setColor(sc.getColor());
 
-        // Optionally, set the style to FILL_AND_STROKE if required
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        // Draw the shape with the stroke color and style
         sc.getShape().accept(this);
 
-        // Restore the original color and style after drawing
-        paint.setColor(originalColor);
-        paint.setStyle(originalStyle);
-
+        paint.setColor(sc.getColor());
+        paint.setStyle(Paint.Style.STROKE);
         return null;
     }
 
@@ -64,8 +53,9 @@ public class Draw implements Visitor<Void> {
     public Void onLocation(final Location l) {
         canvas.save();  // Save the canvas state before translating
         canvas.translate(l.getX(), l.getY());  // Translate to the location's coordinates
-        l.getShape().accept(this);  // Draw the shape at the translated position
-        canvas.restore();  // Restore the canvas to its original state after drawing
+        l.getShape().accept(this);
+        canvas.translate(-l.getX(), -l.getY());
+        // Restore the canvas to its original state after drawing
         return null;
     }
 

@@ -1,6 +1,7 @@
 package edu.luc.etl.cs313.android.shapes.model;
 
 public class Count implements Visitor<Integer> {
+    private int count = 0;
 
     @Override
     public Integer onPolygon(final Polygon p) {

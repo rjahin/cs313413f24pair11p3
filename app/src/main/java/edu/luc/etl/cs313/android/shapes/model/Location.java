@@ -14,7 +14,6 @@ public class Location implements Shape {
         this.y = y;
         this.shape = shape;
     }
-
     public Shape getShape() {
         return shape;
     }
