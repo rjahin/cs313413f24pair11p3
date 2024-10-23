@@ -5,6 +5,8 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import edu.luc.etl.cs313.android.shapes.model.*;
 
+import java.util.List;
+
 public class Draw implements Visitor<Void> {
 
     private final Canvas canvas;
@@ -24,38 +26,31 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onStrokeColor(final StrokeColor sc) {
-        // Save the current color and style
-        int originalColor = paint.getColor();
-        Paint.Style originalStyle = paint.getStyle();
-
-        // Set the stroke color
         paint.setColor(sc.getColor());
 
-        // Optionally, set the style to FILL_AND_STROKE if required
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        // Draw the shape with the stroke color and style
         sc.getShape().accept(this);
 
-        // Restore the original color and style after drawing
-        paint.setColor(originalColor);
-        paint.setStyle(originalStyle);
-
+        paint.setColor(sc.getColor());
+        paint.setStyle(Paint.Style.STROKE);
         return null;
+
     }
 
     @Override
     public Void onFill(final Fill f) {
-        paint.setStyle(Style.FILL);
+        Paint.Style oldStyle = paint.getStyle();
+
+        paint.setStyle(Style.FILL_AND_STROKE);
         f.getShape().accept(this);
-        paint.setStyle(Style.STROKE); // Reset style to stroke after filling
+
+        paint.setStyle(oldStyle);
         return null;
     }
 
     @Override
     public Void onGroup(final Group g) {
-        for (Shape shape : g.getShapes()) {
-            shape.accept(this);
+        for (Shape s : g.getShapes()) {
+            s.accept(this);
         }
         return null;
     }
@@ -65,7 +60,7 @@ public class Draw implements Visitor<Void> {
         canvas.save();  // Save the canvas state before translating
         canvas.translate(l.getX(), l.getY());  // Translate to the location's coordinates
         l.getShape().accept(this);  // Draw the shape at the translated position
-        canvas.restore();  // Restore the canvas to its original state after drawing
+        canvas.translate(-l.getX(), -l.getY());  // Restore the canvas to its original state after drawing
         return null;
     }
 
@@ -74,26 +69,35 @@ public class Draw implements Visitor<Void> {
         canvas.drawRect(0, 0, r.getWidth(), r.getHeight(), paint);  // Draw the rectangle
         return null;
     }
+
     @Override
     public Void onOutline(final Outline o) {
         paint.setStyle(Style.STROKE);
         o.getShape().accept(this);
+        paint.setStyle(Style.STROKE);
         return null;
     }
 
     @Override
     public Void onPolygon(final Polygon s) {
-        final float[] pts = new float[s.getPoints().size() * 4]; // Array of line segments
-        int i = 0;
-        for (int j = 0; j < s.getPoints().size(); j++) {
-            Point p1 = s.getPoints().get(j);
-            Point p2 = s.getPoints().get((j + 1) % s.getPoints().size());
-            pts[i++] = p1.getX();
-            pts[i++] = p1.getY();
-            pts[i++] = p2.getX();
-            pts[i++] = p2.getY();
+        List<? extends Point> points = s.getPoints();
+        if (points.size() > 1) {
+            float[] pts = new float[s.getPoints().size() * 4];// Array of line segments
+            int i = 0;
+            for (int j = 0; j < s.getPoints().size(); j++) {
+                Point p1 = s.getPoints().get(j);
+                Point p2 = s.getPoints().get((j + 1) % s.getPoints().size());
+                pts[i++] = p1.getX();
+                pts[i++] = p1.getY();
+                pts[i++] = p2.getX();
+                pts[i++] = p2.getY();
+            }
+            canvas.drawLines(pts, paint);
+            Point first = points.get(0);
+            Point last = points.get(points.size() - 1);
+            canvas.drawLine(last.getX(), last.getY(), first.getX(), first.getY(), paint);
         }
-        canvas.drawLines(pts, paint);
         return null;
     }
 }
+
